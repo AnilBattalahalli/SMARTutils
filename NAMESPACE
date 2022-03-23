@@ -2,4 +2,5 @@
 
 export(nocovairiates.from_conditional)
 export(nocovariates.treat)
+export(treatment_summary)
 importFrom(stats,rbinom)
