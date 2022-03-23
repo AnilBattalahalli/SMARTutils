@@ -47,7 +47,7 @@ nocovairiates.from_conditional <- function(cell_mu = c(10,8,2,4,-2,3), cell_var 
   betas <- solve(A, B)
 
   treat_summary <-  data.frame(treat_mu, treat_var, treat_cor, betas)
-  row.names(treat_summary) <-  c("A1=1,A2=1", "A1=1,A2=-1", "A1=-1,A2=1", "A1=-1,A2=-1" )
+  row.names(treat_summary) <-  c("(1, 1)", "(1, -1)", "(-1, 1)", "(-1,-1)" )
 
   recipe <- list(cell_mu=cell_mu, cell_var=cell_var, cell_cor=cell_cor, cell_cov=cell_cov,
                  treat_mu=treat_mu, treat_var=treat_var, treat_cov=treat_cov, treat_cor=treat_cor,

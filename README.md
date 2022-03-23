@@ -16,3 +16,8 @@ Generate new data from the same recipe
 data_1 <- nocovariates.treat(recipe)
 data_2 <- nocovariates.treat(recipe)
 ```
+Get treatment summary
+
+```
+summary <- treatment_summary(recipe)
+```
