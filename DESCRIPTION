@@ -1,0 +1,20 @@
+Package: SMARTutils
+Type: Package
+Title: Clustered SMART data generator and estimator
+Version: 0.1.0
+Author: Anil Battalahalli
+Maintainer: Anil Battalahalli <anilbs@umich.edu>
+Description: This is a Clustered SMART data generator and estimator package. This has methods to generate a recipe for treatment and to simulate data from the recipe.
+License: GPL-3
+Imports:
+    mvtnorm,
+    stats
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Config/testthat/edition: 3
