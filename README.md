@@ -21,3 +21,9 @@ Get treatment summary
 ```
 summary <- treatment_summary(recipe)
 ```
+
+```
+var <- list("1,1" = 100, "1,-1"=100, "-1,1"=100, "-1,-1"=100)
+rho <- list("1,1" = 0.2, "1,-1"=0.1, "-1,1"=0.1, "-1,-1"=0.3)
+estimate_betas(var, rho, data)
+```
