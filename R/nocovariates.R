@@ -127,8 +127,8 @@ D <- function(n, a1, a2){
 #' @param var list of variances
 #' @param rho list of correlations
 #' @param data data with cluster ID, A1, R, A2, Y
-#' @export estimate_betas
-estimate_betas <- function(var, rho, data){
+#' @export nocovariates.estimate_betas
+nocovariates.estimate_betas <- function(var, rho, data){
   dtrs <- c("1,1", "1,-1", "-1,1", "-1,-1")
   dtrenc <- list("1,1" = c(1,1), "1,-1"=c(1,-1), "-1,1"=c(-1,1), "-1,-1"=c(-1,-1))
   f <- matrix(0, 4, 4)
