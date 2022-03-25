@@ -123,7 +123,12 @@ D <- function(n, a1, a2){
   rep.row(temp, n)
 }
 
-get_betas <- function(var, rho, data){
+#' @title Function to estimate betas given the data, variance and correlation
+#' @param var list of variances
+#' @param rho list of correlations
+#' @param data data with cluster ID, A1, R, A2, Y
+#' @export estimate_betas
+estimate_betas <- function(var, rho, data){
   dtrs <- c("1,1", "1,-1", "-1,1", "-1,-1")
   dtrenc <- list("1,1" = c(1,1), "1,-1"=c(1,-1), "-1,1"=c(-1,1), "-1,-1"=c(-1,-1))
   f <- matrix(0, 4, 4)
