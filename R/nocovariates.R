@@ -26,8 +26,8 @@ nocovairiates.from_conditional <- function(cell_mu = c(10,8,2,4,-2,3), cell_var 
   q_2 <-  1 - p_2
   cell_cov <-  cell_var*cell_cor
 
-  treat_mu <-  c((cell_mu[1]*p_1) + (cell_mu[2]*p_2), (cell_mu[1]*p_1) + (cell_mu[3]*p_2),
-               (cell_mu[4]*p_1) + (cell_mu[5]*p_2), (cell_mu[4]*p_1) + (cell_mu[6]*p_2))
+  treat_mu <-  c((cell_mu[1]*p_1) + (cell_mu[2]*q_1), (cell_mu[1]*p_1) + (cell_mu[3]*q_1),
+                 (cell_mu[4]*p_2) + (cell_mu[5]*q_2), (cell_mu[4]*p_2) + (cell_mu[6]*q_2))
 
   treat_var <-  c((cell_var[1]*p_1 + cell_var[2]*q_1), (cell_var[1]*p_1 + cell_var[3]*q_1),
                 (cell_var[4]*p_2 + cell_var[5]*q_2), (cell_var[4]*p_2 + cell_var[6]*q_2))
@@ -108,4 +108,55 @@ nocovariates.treat <- function(recipe){
   full_data_frame = as.data.frame(data)
   names(full_data_frame) = c("i", "j", "A1", "R", "A2", "Y")
   return(full_data_frame)
+}
+
+rep.row<-function(x,n){
+  matrix(rep(x,each=n),nrow=n)
+}
+
+IWi <- function(A1, R, A2, a1, a2){
+  2*ifelse(A1==a1,1,0)*(R+(2*ifelse(A2==a2,1,0)*(1-R)))
+}
+
+D <- function(n, a1, a2){
+  temp <- c(1, a1, a2, a1*a2)
+  rep.row(temp, n)
+}
+
+get_betas <- function(var, rho, data){
+  dtrs <- c("1,1", "1,-1", "-1,1", "-1,-1")
+  dtrenc <- list("1,1" = c(1,1), "1,-1"=c(1,-1), "-1,1"=c(-1,1), "-1,-1"=c(-1,-1))
+  f <- matrix(0, 4, 4)
+  N <- max(data$i)
+  for (ci in 1:N){
+    data_sub <- data[data$i == ci, ]
+    A1 <- data_sub$A1[1]
+    R <- data_sub$R[1]
+    A2 <- data_sub$A2[1]
+    ni <- nrow(data_sub)
+    for (d in dtrs){
+      a1 <- dtrenc[[d]][1]
+      a2 <- dtrenc[[d]][2]
+      V = var[[d]] * (diag(ni)+(rho[[d]]*(matrix(1,ni,ni)-diag(ni))))
+      f = f + (IWi(A1, R, A2, a1, a2) * t(D(ni, a1, a2)) %*% solve(V) %*% D(ni, a1, a2))
+    }
+  }
+
+  s <- matrix(0, 4, 1)
+  for (ci in 1:N){
+    data_sub <- data[data$i == ci, ]
+    A1 <- data_sub$A1[1]
+    R <- data_sub$R[1]
+    A2 <- data_sub$A2[1]
+    ni <- nrow(data_sub)
+    Y <- matrix(data_sub$Y)
+    for (d in dtrs){
+      a1 <- dtrenc[[d]][1]
+      a2 <- dtrenc[[d]][2]
+      V = var[[d]] * (diag(ni)+(rho[[d]]*(matrix(1,ni,ni)-diag(ni))))
+      s <- s + (IWi(A1, R, A2, a1, a2) * t(D(ni, a1, a2)) %*% solve(V) %*% Y)
+    }
+  }
+  beta_hat <- solve(f) %*% s
+  return(beta_hat)
 }
