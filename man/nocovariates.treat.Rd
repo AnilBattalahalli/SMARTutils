@@ -2,13 +2,17 @@
 % Please edit documentation in R/nocovariates.R
 \name{nocovariates.treat}
 \alias{nocovariates.treat}
-\title{Function to generate data from treatment}
+\title{Function to generate data from the treatment recipe object}
 \usage{
 nocovariates.treat(recipe)
 }
 \arguments{
-\item{recipe}{the generated recipe from nocovairiates.from_conditional()}
+\item{recipe}{the generated recipe from nocovairiates.from_conditional() function}
+}
+\value{
+a data.frame object of the generated data with cluster ID, participant ID, A1, R, A2, and response
 }
 \description{
-Function to generate data from treatment
+Generates data from the treatment recipe object. This function can be
+reused with the same treatment recipe object to generate more samples with the same parameters.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/nocovariates.R
 \name{nocovairiates.from_conditional}
 \alias{nocovairiates.from_conditional}
-\title{Function to get treatment recipe from the conditionals}
+\title{Function to get treatment recipe object from the conditional parameters}
 \usage{
 nocovairiates.from_conditional(
   cell_mu = c(10, 8, 2, 4, -2, 3),
@@ -15,20 +15,31 @@ nocovairiates.from_conditional(
 )
 }
 \arguments{
-\item{cell_mu}{a vector of conditional means}
+\item{cell_mu}{a vector of conditional means.}
 
-\item{cell_var}{a vector of conditional vars}
+\item{cell_var}{a vector of conditional variances.}
 
-\item{cell_cor}{a vector of conditional correlation}
+\item{cell_cor}{a vector of conditional correlations.}
 
-\item{N}{number of clusters}
+\item{N}{number of clusters to be generated.}
 
-\item{m}{number of participants in a cluster}
+\item{m}{number of participants in a cluster.
+This can be a numeric variable \code{m_1} in which case, it is assumed that the
+number of participants in each cluster is \code{m_1}. This can also be a list of length N
+where each element in the list corresponds to the number of participants in the cluster.}
 
-\item{p_1}{probability of response of A_1 = 1}
+\item{p_1}{probability of response of the first level treatment A_1 = 1}
 
-\item{p_2}{probability of response of A_1 = -1}
+\item{p_2}{probability of response of the first level treatment A_1 = -1}
+}
+\value{
+a treatment recipe object containing all the conditional and marginal parameters.
 }
 \description{
-Does what it says
+Returns the treatment recipe object from the conditional parameters
+(mean, variance, correlation), number of clusters, number of participants in each cluster,
+response probabilities of the different first level treatment options.
+conditional mean, variance, and correlation must be numerical lists of length 6 with each
+element corresponding to the cells (1, 1, .), (1, 0, 1), (1, 0, -1), (-1, 1, .), (-1, 0, 1), and (-1, 0, -1)
+encoded in (A1, R, A2) form.
 }

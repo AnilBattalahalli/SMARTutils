@@ -9,6 +9,9 @@ treatment_summary(recipe)
 \arguments{
 \item{recipe}{the generated recipe from nocovairiates.from_conditional()}
 }
+\value{
+a data.frame object containing the true marginal parameters and true betas
+}
 \description{
 Function to get treatment summary from the data generator
 }
