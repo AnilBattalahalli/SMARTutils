@@ -102,7 +102,7 @@ nocovariates.treat <- function(recipe){
 
     cell_index <- as.numeric(encoder[treat_code])
     V <-  cell_var[cell_index] * (diag(m)+(cell_cor[cell_index]*(matrix(1,m,m)-diag(m))))
-    Y <- t(cell_mu[cell_index]+mvtnorm::rmvnorm(1, rep(0,m), V*0.5, method='chol'))
+    Y <- t(cell_mu[cell_index]+mvtnorm::rmvnorm(1, rep(0,m), V, method='chol'))
 
     tempmat <- cbind(rep(clusID, m), seq(1,m), rep(A1, m), rep(R, m), rep(A2, m), Y)
     data <- rbind(data, tempmat)
@@ -263,6 +263,7 @@ nocovariates.estimate_betas <- function(data){
   varrho_stars <- get_varrho_star(data, epsilon)
   var <- varrho_stars$var_star
   rho <- varrho_stars$rho_star
+  return(list(beta_hat=betas, var_hat=var, rho_hat=rho))
 }
 
 
