@@ -2,16 +2,8 @@
 
 ``` r
 library(devtools)
-```
-
-    ## Loading required package: usethis
-
-``` r
 install_github("AnilBattalahalli/SMARTutils")
 ```
-
-    ## Skipping install of 'SMARTutils' from a github remote, the SHA1 (7d24e265) has not changed since last install.
-    ##   Use `force = TRUE` to force installation
 
 ### Import the library
 
