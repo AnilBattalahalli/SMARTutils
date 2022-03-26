@@ -24,6 +24,8 @@ Get treatment summary
 summary <- treatment_summary(recipe)
 ```
 
+Estimating beta, rho and var 
+
 ```
 estimates <- nocovariates.estimate_betas(data)
 ```
