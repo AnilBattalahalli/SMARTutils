@@ -8,8 +8,8 @@ nocovairiates.from_conditional(
   cell_mu = c(10, 8, 2, 4, -2, 3),
   cell_var = c(100, 100, 100, 100, 100, 100),
   cell_cor = c(0.1, 0.2, 0.15, 0.12, 0.11, 0.07),
-  N = 100,
-  m = 10,
+  N = 200,
+  m = 5,
   p_1 = 0.3,
   p_2 = 0.2
 )

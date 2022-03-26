@@ -4,13 +4,9 @@
 \alias{nocovariates.estimate_betas}
 \title{Function to estimate betas given the data, variance and correlation}
 \usage{
-nocovariates.estimate_betas(var, rho, data)
+nocovariates.estimate_betas(data)
 }
 \arguments{
-\item{var}{list of variances}
-
-\item{rho}{list of correlations}
-
 \item{data}{data with cluster ID, A1, R, A2, Y}
 }
 \description{

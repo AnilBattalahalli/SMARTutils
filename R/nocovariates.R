@@ -1,4 +1,5 @@
 #' @importFrom stats rbinom
+#' @importFrom utils combn
 NULL
 
 #' @title Function to get treatment recipe from the conditionals
@@ -13,7 +14,7 @@ NULL
 #' @param p_2 probability of response of A_1 = -1
 #' @export nocovairiates.from_conditional
 nocovairiates.from_conditional <- function(cell_mu = c(10,8,2,4,-2,3), cell_var = c(100,100,100,100,100,100),
-                                           cell_cor = c(0.1,0.2,0.15,0.12,0.11,0.07), N=100, m=10, p_1=0.3, p_2=0.2){
+                                           cell_cor = c(0.1, 0.2, 0.15, 0.12, 0.11, 0.07), N=200, m=5, p_1=0.3, p_2=0.2){
 
   if (length(m) != N){
     m <- rep(m[1], N)
@@ -24,6 +25,7 @@ nocovairiates.from_conditional <- function(cell_mu = c(10,8,2,4,-2,3), cell_var 
 
   q_1 <-  1 - p_1
   q_2 <-  1 - p_2
+
   cell_cov <-  cell_var*cell_cor
 
   treat_mu <-  c((cell_mu[1]*p_1) + (cell_mu[2]*q_1), (cell_mu[1]*p_1) + (cell_mu[3]*q_1),
@@ -118,17 +120,89 @@ IWi <- function(A1, R, A2, a1, a2){
   2*ifelse(A1==a1,1,0)*(R+(2*ifelse(A2==a2,1,0)*(1-R)))
 }
 
+perm_mul_sum <- function(l){
+  l <- rbind(t(combn(l, 2)), t(combn(l, 2)))
+  l <- data.frame(l)
+  return(sum(l$X1*l$X2))
+}
+
 D <- function(n, a1, a2){
   temp <- c(1, a1, a2, a1*a2)
   rep.row(temp, n)
 }
 
-#' @title Function to estimate betas given the data, variance and correlation
-#' @param var list of variances
-#' @param rho list of correlations
-#' @param data data with cluster ID, A1, R, A2, Y
-#' @export nocovariates.estimate_betas
-nocovariates.estimate_betas <- function(var, rho, data){
+mmm <- function(y, betas, a1, a2){
+  l <- length(y)
+  mu <- rep.row(betas[1] + (a1 * betas[2]) + (a2 * betas[3]) + (a1 * a2 * betas[4]), l)
+  return(mu)
+}
+
+get_reiduals <- function(betas, data){
+  dtrs <- c("1,1", "1,-1", "-1,1", "-1,-1")
+  dtrenc <- list("1,1" = c(1,1), "1,-1"=c(1,-1), "-1,1"=c(-1,1), "-1,-1"=c(-1,-1))
+  N <- max(data$i)
+  epsilon <- list()
+  for (d in dtrs){
+    a1 <- dtrenc[[d]][1]
+    a2 <- dtrenc[[d]][2]
+    temp <- list()
+    for (ci in 1:N){
+      data_sub <- data[data$i == ci, ]
+      temp[ci] <- list(as.numeric(data_sub$Y - mmm(data_sub$Y, betas, a1, a2)))
+    }
+    epsilon[d] <- list(temp)
+  }
+  return(epsilon)
+}
+
+get_varrho_star <- function(data, epsilon){
+  dtrs <- c("1,1", "1,-1", "-1,1", "-1,-1")
+  dtrenc <- list("1,1" = c(1,1), "1,-1"=c(1,-1), "-1,1"=c(-1,1), "-1,-1"=c(-1,-1))
+  var_star <- list()
+  rho_star <- list()
+  N <- max(data$i)
+
+  for (d in dtrs){
+    a1 <- dtrenc[[d]][1]
+    a2 <- dtrenc[[d]][2]
+    s <- 0
+    den <- 0
+    for (i in 1:N){
+      data_sub <- data[data$i == i, ]
+      ni <- nrow(data_sub)
+      A1 <- data_sub$A1[1]
+      R <- data_sub$R[1]
+      A2 <- data_sub$A2[1]
+      eps_sq <- epsilon[[d]][[i]]^2
+      s <- s + (IWi(A1, R, A2, a1, a2) * sum(eps_sq))
+      den <- den + (IWi(A1, R, A2, a1, a2) * ni)
+    }
+    var_star[d] <- s/den
+  }
+
+  for (d in dtrs){
+    a1 <- dtrenc[[d]][1]
+    a2 <- dtrenc[[d]][2]
+    s <- 0
+    den <- 0
+    for (i in 1:N){
+      data_sub <- data[data$i == i, ]
+      ni <- nrow(data_sub)
+      A1 <- data_sub$A1[1]
+      R <- data_sub$R[1]
+      A2 <- data_sub$A2[1]
+      eps_mul_sum <- perm_mul_sum(epsilon[[d]][[i]])
+      s <- s + (IWi(A1, R, A2, a1, a2) * eps_mul_sum)
+      den <- den + (IWi(A1, R, A2, a1, a2) * ni * (ni - 1))
+    }
+    den <- den * var_star[[d]]
+    rho_star[d] <- s/den
+  }
+  rhovar_stars <- list(rho_star=rho_star, var_star=var_star)
+  return(rhovar_stars)
+}
+
+get_beta <- function(var, rho, data){
   dtrs <- c("1,1", "1,-1", "-1,1", "-1,-1")
   dtrenc <- list("1,1" = c(1,1), "1,-1"=c(1,-1), "-1,1"=c(-1,1), "-1,-1"=c(-1,-1))
   f <- matrix(0, 4, 4)
@@ -165,3 +239,30 @@ nocovariates.estimate_betas <- function(var, rho, data){
   beta_hat <- solve(f) %*% s
   return(beta_hat)
 }
+
+#' @title Function to estimate betas given the data, variance and correlation
+#' @param data data with cluster ID, A1, R, A2, Y
+#' @export nocovariates.estimate_betas
+nocovariates.estimate_betas <- function(data){
+  var <- list("1,1" = 1, "1,-1"=1, "-1,1"=1, "-1,-1"=1)
+  rho <- list("1,1" = 0, "1,-1"=0, "-1,1"=0, "-1,-1"=0)
+  betas <- get_beta(var, rho, data)
+  epsilon <- get_reiduals(betas, data)
+  varrho_stars <- get_varrho_star(data, epsilon)
+  var <- varrho_stars$var_star
+  rho <- varrho_stars$rho_star
+
+  betas <- get_beta(var, rho, data)
+  epsilon <- get_reiduals(betas, data)
+  varrho_stars <- get_varrho_star(data, epsilon)
+  var <- varrho_stars$var_star
+  rho <- varrho_stars$rho_star
+
+  betas <- get_beta(var, rho, data)
+  epsilon <- get_reiduals(betas, data)
+  varrho_stars <- get_varrho_star(data, epsilon)
+  var <- varrho_stars$var_star
+  rho <- varrho_stars$rho_star
+}
+
+
