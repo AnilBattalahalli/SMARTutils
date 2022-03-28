@@ -4,14 +4,16 @@
 \alias{nocovariates.estimate}
 \title{Function to estimate beta, variance of beta_hat, and ICC}
 \usage{
-nocovariates.estimate(data)
+nocovariates.estimate(data, mode = "all")
 }
 \arguments{
 \item{data}{a data.frame object containing cluster ID, participant ID, A1, R, A2, Y with
 column names being i, j, A1, R, A2, Y.}
+
+\item{mode}{if set to 'all', the function returns the estimate for the covariance matrix of beta_hat}
 }
 \value{
-a list object containing all the estimated parameters.
+estimates object containing all the estimated parameters.
 }
 \description{
 Function to estimate beta, variance of beta_hat, and ICC

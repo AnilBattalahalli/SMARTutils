@@ -190,7 +190,6 @@ nocovariates.estimate_var_betas <- function(data, var, rho, betas){
 }
 
 #' @title Function to get treatment recipe object from the conditional parameters
-#'
 #' @description Returns the treatment recipe object from the conditional parameters
 #' (mean, variance, correlation), number of clusters, number of participants in each cluster,
 #' response probabilities of the different first level treatment options.
@@ -253,6 +252,24 @@ nocovairiates.from_conditional <- function(cell_mu = c(10,8,2,4,-2,3), cell_var 
   return(recipe)
 }
 
+#' @title Function to output the true effect size from the recipe
+#' @description
+#' @param recipe the generated recipe from nocovairiates.from_conditional() function
+#' @param d1 DTR 1
+#' @param d2 DTR 2
+#' @return the true effect size of two DTRs
+#' @export nocovariates.true_effect_size
+nocovariates.true_effect_size <- function(recipe, d1, d2){
+  treat_mu <- recipe$treat_mu
+  treat_var <- recipe$treat_var
+  dtrnum <- list("1,1" = 1, "1,-1"=2, "-1,1"=3, "-1,-1"=4)
+  numerator <- treat_mu[dtrnum[[d1]]] - treat_mu[dtrnum[[d2]]]
+  denominator <- (0.5 * treat_var[dtrnum[[d1]]])+(0.5 * treat_var[dtrnum[[d2]]])
+  denominator <- sqrt(denominator)
+  return(numerator/denominator)
+}
+
+
 #' @title Function to generate data from the treatment recipe object
 #' @description Generates data from the treatment recipe object. This function can be
 #' reused with the same treatment recipe object to generate more samples with the same parameters.
@@ -314,9 +331,10 @@ nocovariates.treat <- function(recipe){
 #' @title Function to estimate beta, variance of beta_hat, and ICC
 #' @param data a data.frame object containing cluster ID, participant ID, A1, R, A2, Y with
 #' column names being i, j, A1, R, A2, Y.
-#' @return a list object containing all the estimated parameters.
+#' @param mode if set to 'all', the function returns the estimate for the covariance matrix of beta_hat
+#' @return estimates object containing all the estimated parameters.
 #' @export nocovariates.estimate
-nocovariates.estimate <- function(data){
+nocovariates.estimate <- function(data, mode='all'){
   var <- list("1,1" = 1, "1,-1"=1, "-1,1"=1, "-1,-1"=1)
   rho <- list("1,1" = 0, "1,-1"=0, "-1,1"=0, "-1,-1"=0)
   betas <- get_beta(var, rho, data)
@@ -336,7 +354,67 @@ nocovariates.estimate <- function(data){
   varrho_stars <- get_varrho_star(data, epsilon)
   var <- varrho_stars$var_star
   rho <- varrho_stars$rho_star
-
+  B <- matrix(c(1,1,1,1,1,1,-1,-1,1,-1,1,-1,1,-1,-1,1),4,4)
   cov_hat <- nocovariates.estimate_var_betas(data, var, rho, betas)
-  return(list(beta_hat=betas, var_hat=var, rho_hat=rho, cov_hat_beta_hat=cov_hat))
+  mu_hat_dtr <- B %*% betas
+  return(list(beta_hat=betas, var_hat=var, rho_hat=rho, cov_hat_beta_hat=cov_hat, mu_hat_dtr=mu_hat_dtr))
 }
+
+
+#' @title Function to estimate effect size for two DTRs
+#' @param estimates estimates object returned by the nocovariates.estimate() function
+#' @param d1 DTR 1
+#' @param d2 DTR 2
+#' @return estimated effect size of type numeric
+#' @export nocovariates.estimate_effectsize
+nocovariates.estimate_effectsize <- function(estimates, d1, d2){
+  var_hat <- estimates$var_hat
+  mu_hat_dtr <- estimates$mu_hat_dtr
+  dtrnum <- list("1,1" = 1, "1,-1"=2, "-1,1"=3, "-1,-1"=4)
+  numerator <- mu_hat_dtr[dtrnum[[d1]]] - mu_hat_dtr[dtrnum[[d2]]]
+  denominator <- (0.5 * var_hat[[d1]])+(0.5 * var_hat[[d2]])
+  denominator <- sqrt(denominator)
+  return(numerator/denominator)
+}
+
+#' @title Function to estimate effect size for all DTR pairs
+#' @param estimates estimates object returned by the nocovariates.estimate() function
+#' @return a named list of estimated effect sizes
+#' @export nocovariates.estimate_effectsizes
+nocovariates.estimate_effectsizes <- function(estimates){
+  all_pairs <- t(combn(c("1,1", "1,-1", "-1,1", "-1,-1"), 2))
+  effect_sizes <- list()
+  for (i in 1:6){
+    d1 <- all_pairs[i,1]
+    d2 <- all_pairs[i,2]
+    es <- nocovariates.estimate_effectsize(estimates, d1, d2)
+    effect_sizes[sprintf("(%s), (%s)", d1, d2)] <- es
+  }
+  return(effect_sizes)
+}
+
+#' @title Function to estimate variance of the effect size for two DTRs
+#' @param estimates estimates object returned by the nocovariates.estimate() function
+#' @param d1 DTR 1
+#' @param d2 DTR 2
+#' @param method can be either 'naive' or 'bootstrapped'
+#' @return estimated variance of the effect size of type numeric
+#' @export nocovariates.estimate_var_effectsize
+nocovariates.estimate_var_effectsize <- function(estimates, d1, d2, method='naive'){
+  var_hat <- estimates$var_hat
+  dtrnum <- list("1,1" = 1, "1,-1"=2, "-1,1"=3, "-1,-1"=4)
+  i1 <- dtrnum[[d1]]
+  i2 <- dtrnum[[d2]]
+  if (method == 'naive'){
+    B <- matrix(c(1,1,1,1,1,1,-1,-1,1,-1,1,-1,1,-1,-1,1),4,4)
+    M <- estimates$cov_hat_beta_hat
+    var_hat_mu_dtr <- B%*%M%*%B
+    numerator <- var_hat_mu_dtr[i1, i1] + var_hat_mu_dtr[i2, i2] - (2* var_hat_mu_dtr[i1, i2])
+    denominator <- (0.5 * var_hat[[d1]])+(0.5 * var_hat[[d2]])
+    return(numerator/denominator)
+
+  } else if (method == 'bootstrap'){
+    invisible()
+  }
+}
+
