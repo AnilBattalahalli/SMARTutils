@@ -1,4 +1,5 @@
 #' @importFrom stats rbinom
+#' @importFrom stats var
 #' @importFrom utils combn
 NULL
 
@@ -253,7 +254,6 @@ nocovairiates.from_conditional <- function(cell_mu = c(10,8,2,4,-2,3), cell_var 
 }
 
 #' @title Function to output the true effect size from the recipe
-#' @description
 #' @param recipe the generated recipe from nocovairiates.from_conditional() function
 #' @param d1 DTR 1
 #' @param d2 DTR 2
@@ -393,14 +393,22 @@ nocovariates.estimate_effectsizes <- function(estimates){
   return(effect_sizes)
 }
 
+boot_var_es <- function(i, data, d1, d2){
+  data_boot <- clusterBoot(data)
+  estimates <- nocovariates.estimate(data_boot)
+  return(nocovariates.estimate_effectsize(estimates, d1, d2))
+}
+
 #' @title Function to estimate variance of the effect size for two DTRs
 #' @param estimates estimates object returned by the nocovariates.estimate() function
 #' @param d1 DTR 1
 #' @param d2 DTR 2
-#' @param method can be either 'naive' or 'bootstrapped'
+#' @param data data to be passed as an argument for 'bootstrap' method
+#' @param method can be either 'naive' or 'bootstrap'
+#' @param numCores number of parallel cores to be passed for parallel processing
 #' @return estimated variance of the effect size of type numeric
 #' @export nocovariates.estimate_var_effectsize
-nocovariates.estimate_var_effectsize <- function(estimates, d1, d2, method='naive'){
+nocovariates.estimate_var_effectsize <- function(estimates, d1, d2, data, method='naive', numCores=1){
   var_hat <- estimates$var_hat
   dtrnum <- list("1,1" = 1, "1,-1"=2, "-1,1"=3, "-1,-1"=4)
   i1 <- dtrnum[[d1]]
@@ -414,7 +422,8 @@ nocovariates.estimate_var_effectsize <- function(estimates, d1, d2, method='naiv
     return(numerator/denominator)
 
   } else if (method == 'bootstrap'){
-    invisible()
+    results_1 <- pbmcapply::pbmclapply(1:1000, boot_var_es, data=data, d1='1,1', d2='1,-1', mc.cores = numCores)
+    return(var(unlist(results_1)))
   }
 }
 

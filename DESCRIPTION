@@ -1,14 +1,15 @@
 Package: SMARTutils
 Type: Package
 Title: Clustered SMART data generator and estimator
-Version: 0.1.0
-Author: Anil Battalahalli
+Version: 1.4.0
+Author: Anil Battalahalli, Anandkumar Patel
 Maintainer: Anil Battalahalli <anilbs@umich.edu>
-Description: This is a Clustered SMART data generator and estimator package. This has methods to generate a recipe for treatment and to simulate data from the recipe.
+Description: This is a Clustered SMART data generator and estimator package. Use this package to generate data, estimate, and perform bootstrap sampling for a Clustered SMART.
 License: GPL-3
 Imports:
     mvtnorm,
-    stats
+    stats,
+    pbmcapply
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1

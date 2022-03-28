@@ -4,7 +4,14 @@
 \alias{nocovariates.estimate_var_effectsize}
 \title{Function to estimate variance of the effect size for two DTRs}
 \usage{
-nocovariates.estimate_var_effectsize(estimates, d1, d2, method = "naive")
+nocovariates.estimate_var_effectsize(
+  estimates,
+  d1,
+  d2,
+  data,
+  method = "naive",
+  numCores = 1
+)
 }
 \arguments{
 \item{estimates}{estimates object returned by the nocovariates.estimate() function}
@@ -13,7 +20,11 @@ nocovariates.estimate_var_effectsize(estimates, d1, d2, method = "naive")
 
 \item{d2}{DTR 2}
 
-\item{method}{can be either 'naive' or 'bootstrapped'}
+\item{data}{data to be passed as an argument for 'bootstrap' method}
+
+\item{method}{can be either 'naive' or 'bootstrap'}
+
+\item{numCores}{number of parallel cores to be passed for parallel processing}
 }
 \value{
 estimated variance of the effect size of type numeric
