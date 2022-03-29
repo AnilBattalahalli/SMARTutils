@@ -10,6 +10,7 @@ nocovariates.estimate_var_effectsize(
   d2,
   data,
   method = "naive",
+  numBoot = 1000,
   numCores = 1
 )
 }
@@ -23,6 +24,8 @@ nocovariates.estimate_var_effectsize(
 \item{data}{data to be passed as an argument for 'bootstrap' method}
 
 \item{method}{can be either 'naive' or 'bootstrap'}
+
+\item{numBoot}{the number of bootstrap simulations to be performed}
 
 \item{numCores}{number of parallel cores to be passed for parallel processing}
 }

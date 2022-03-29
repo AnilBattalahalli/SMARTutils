@@ -1,6 +1,7 @@
 #' @importFrom stats rbinom
 #' @importFrom stats var
 #' @importFrom utils combn
+#' @importFrom pbmcapply pbmclapply
 NULL
 
 rep.row<-function(x,n){
@@ -360,6 +361,26 @@ nocovariates.estimate <- function(data, mode='all'){
   return(list(beta_hat=betas, var_hat=var, rho_hat=rho, cov_hat_beta_hat=cov_hat, mu_hat_dtr=mu_hat_dtr))
 }
 
+rename_clusters <- function(df, id){
+  ni <- nrow(df)
+  df$i <- rep(id, ni)
+  return(df)
+}
+
+clusterBoot <- function(data, n=NULL){
+  N <- max(data$i)
+  if (is.null(n)){
+    n <- N
+  }
+  bootdata <- data.frame()
+  clusters <- sample(1:N, n, replace=TRUE)
+  for (i in 1:n){
+    c <- clusters[i]
+    bootdata <- rbind(bootdata, rename_clusters(data[data$i == c, ], i))
+  }
+  rownames(bootdata) <- 1:nrow(bootdata)
+  return(bootdata)
+}
 
 #' @title Function to estimate effect size for two DTRs
 #' @param estimates estimates object returned by the nocovariates.estimate() function
@@ -405,10 +426,11 @@ boot_var_es <- function(i, data, d1, d2){
 #' @param d2 DTR 2
 #' @param data data to be passed as an argument for 'bootstrap' method
 #' @param method can be either 'naive' or 'bootstrap'
+#' @param numBoot the number of bootstrap simulations to be performed
 #' @param numCores number of parallel cores to be passed for parallel processing
 #' @return estimated variance of the effect size of type numeric
 #' @export nocovariates.estimate_var_effectsize
-nocovariates.estimate_var_effectsize <- function(estimates, d1, d2, data, method='naive', numCores=1){
+nocovariates.estimate_var_effectsize <- function(estimates, d1, d2, data, method='naive', numBoot=1000, numCores=1){
   var_hat <- estimates$var_hat
   dtrnum <- list("1,1" = 1, "1,-1"=2, "-1,1"=3, "-1,-1"=4)
   i1 <- dtrnum[[d1]]
@@ -422,7 +444,8 @@ nocovariates.estimate_var_effectsize <- function(estimates, d1, d2, data, method
     return(numerator/denominator)
 
   } else if (method == 'bootstrap'){
-    results_1 <- pbmcapply::pbmclapply(1:1000, boot_var_es, data=data, d1='1,1', d2='1,-1', mc.cores = numCores)
+    results_1 <- pbmcapply::pbmclapply(1:numBoot, boot_var_es, data=data, d1='1,1', d2='1,-1', mc.cores = numCores)
+    #results_1 <- lapply(1:1000, boot_var_es, data=data, d1='1,1', d2='1,-1')
     return(var(unlist(results_1)))
   }
 }
