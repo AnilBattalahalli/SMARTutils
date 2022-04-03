@@ -12,12 +12,12 @@ rename_clusters <- function(df, id){
 #' @export clusterBoot
 
 clusterBoot <- function(data, n=NULL){
-  N <- max(data$i)
+  N <- unique(data$i)
   if (is.null(n)){
-    n <- N
+    n <- length(N)
   }
   bootdata <- data.frame()
-  clusters <- sample(1:N, n, replace=TRUE)
+  clusters <- sample(N, n, replace=TRUE)
   for (i in 1:n){
     c <- clusters[i]
     bootdata <- rbind(bootdata, rename_clusters(data[data$i == c, ], i))
