@@ -8,7 +8,7 @@ nocovariates.estimate(data, mode = "all")
 }
 \arguments{
 \item{data}{a data.frame object containing cluster ID, participant ID, A1, R, A2, Y with
-column names being i, j, A1, R, A2, Y.}
+column names being i, j, A1, R, A2, Y}
 
 \item{mode}{if set to 'all', the function returns the estimate for the covariance matrix of beta_hat}
 }

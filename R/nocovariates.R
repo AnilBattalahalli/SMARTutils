@@ -331,7 +331,7 @@ nocovariates.treat <- function(recipe){
 
 #' @title Function to estimate beta, variance of beta_hat, and ICC
 #' @param data a data.frame object containing cluster ID, participant ID, A1, R, A2, Y with
-#' column names being i, j, A1, R, A2, Y.
+#' column names being i, j, A1, R, A2, Y
 #' @param mode if set to 'all', the function returns the estimate for the covariance matrix of beta_hat
 #' @return estimates object containing all the estimated parameters.
 #' @export nocovariates.estimate
@@ -364,6 +364,7 @@ nocovariates.estimate <- function(data, mode='all'){
 rename_clusters <- function(df, id){
   ni <- nrow(df)
   df$i <- rep(id, ni)
+  df$j <- 1:ni
   return(df)
 }
 
@@ -380,6 +381,37 @@ clusterBoot <- function(data, n=NULL){
   }
   rownames(bootdata) <- 1:nrow(bootdata)
   return(bootdata)
+}
+
+#' @title Function to prepare data for estimation functions
+#' @description nocovariates.estimate requires data as a data.frame object containing cluster ID, participant ID, A1, R, A2, Y with
+#' column names being i, j, A1, R, A2, Y with cluster ID (i) being a contiguous integer from 1 to N and participant ID (j) being a contiguous integer from 1 to m_i
+#' where N is the number of clusters and m_i is the number of participants in cluster i.
+#' This helper function prepares data for estimation.
+#' @param data data frame to be modified
+#' @param cluster_ID the column name corresponding to the cluster ID in the data
+#' @param participant_ID the column name corresponding to the participant ID in the data
+#' @param A1 the column name corresponding to A1 in the data
+#' @param R the column name corresponding to R in the data
+#' @param A2 the column name corresponding to A2 in the data
+#' @param Y the column name corresponding to the outcome variable in the data
+#' @return a data.frame object with renamed columns, cluster ID and participant ID.
+#' @export nocovariates.data_prep
+nocovariates.data_prep <- function(data, cluster_ID, participant_ID, A1, R, A2, Y){
+  names(data)[names(data) == cluster_ID] <- "i"
+  names(data)[names(data) == participant_ID] <- "j"
+  names(data)[names(data) == A1] <- "A1"
+  names(data)[names(data) == R] <- "R"
+  names(data)[names(data) == A2] <- "A2"
+  names(data)[names(data) == Y] <- "Y"
+  N_array <- unique(data$i)
+  N <- length(N_array)
+  data_renamed <- data.frame()
+  for (i in 1:N){
+    data_renamed <- rbind(data_renamed, rename_clusters(data[data$i == N_array[i], ], i))
+  }
+  rownames(data_renamed) <- 1:nrow(data_renamed)
+  return(data_renamed)
 }
 
 #' @title Function to estimate effect size for two DTRs
