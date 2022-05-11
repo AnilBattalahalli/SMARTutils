@@ -31,7 +31,7 @@ mmm <- function(designmat, betas){
   return(mu)
 }
 
-get_reiduals <- function(betas, data, formula){
+get_residuals <- function(betas, data, formula){
   dtrs <- c("1,1", "1,-1", "-1,1", "-1,-1")
   dtrenc <- list("1,1" = c(1,1), "1,-1"=c(1,-1), "-1,1"=c(-1,1), "-1,-1"=c(-1,-1))
   N <- max(data$i)
@@ -206,19 +206,19 @@ clustered.estimate <- function(formula, data){
   rho <- list("1,1" = 0, "1,-1"=0, "-1,1"=0, "-1,-1"=0)
 
   betas <- get_beta(var, rho, data, formula)
-  epsilon <- get_reiduals(betas, data, formula)
+  epsilon <- get_residuals(betas, data, formula)
   varrho_stars <- get_varrho_star(data, epsilon)
   var <- varrho_stars$var_star
   rho <- varrho_stars$rho_star
 
   betas <- get_beta(var, rho, data, formula)
-  epsilon <- get_reiduals(betas, data, formula)
+  epsilon <- get_residuals(betas, data, formula)
   varrho_stars <- get_varrho_star(data, epsilon)
   var <- varrho_stars$var_star
   rho <- varrho_stars$rho_star
 
   betas <- get_beta(var, rho, data, formula)
-  epsilon <- get_reiduals(betas, data, formula)
+  epsilon <- get_residuals(betas, data, formula)
   varrho_stars <- get_varrho_star(data, epsilon)
   var <- varrho_stars$var_star
   rho <- varrho_stars$rho_star
