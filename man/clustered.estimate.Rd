@@ -4,13 +4,15 @@
 \alias{clustered.estimate}
 \title{Function to estimate beta, variance of beta_hat, and ICC}
 \usage{
-clustered.estimate(formula, data)
+clustered.estimate(formula, data, est_var = T)
 }
 \arguments{
 \item{formula}{formula for the estimation}
 
 \item{data}{a data.frame object containing cluster ID, participant ID, A1, R, A2, Y with
 column names being i, j, A1, R, A2, Y}
+
+\item{est_var}{T/F to estimate the variance or not}
 }
 \value{
 estimates object containing all the estimated parameters.

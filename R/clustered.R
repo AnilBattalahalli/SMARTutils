@@ -199,9 +199,10 @@ clustered.estimate_var_betas <- function(data, var, rho, betas, formula){
 #' @param formula formula for the estimation
 #' @param data a data.frame object containing cluster ID, participant ID, A1, R, A2, Y with
 #' column names being i, j, A1, R, A2, Y
+#' @param est_var T/F to estimate the variance or not
 #' @return estimates object containing all the estimated parameters.
 #' @export clustered.estimate
-clustered.estimate <- function(formula, data){
+clustered.estimate <- function(formula, data, est_var = T){
   var <- list("1,1" = 1, "1,-1"=1, "-1,1"=1, "-1,-1"=1)
   rho <- list("1,1" = 0, "1,-1"=0, "-1,1"=0, "-1,-1"=0)
 
@@ -222,8 +223,12 @@ clustered.estimate <- function(formula, data){
   varrho_stars <- get_varrho_star(data, epsilon)
   var <- varrho_stars$var_star
   rho <- varrho_stars$rho_star
+  if (est_var){
+    cov_hat <- clustered.estimate_var_betas(data, var, rho, betas, formula)
+    return(list(beta_hat=betas, var_hat=var, rho_hat=rho, cov_hat_beta_hat=cov_hat, formula=formula))
+  } else{
+    return(list(beta_hat=betas, var_hat=var, rho_hat=rho, formula=formula))
+  }
 
-  cov_hat <- clustered.estimate_var_betas(data, var, rho, betas, formula)
-  return(list(beta_hat=betas, var_hat=var, rho_hat=rho, cov_hat_beta_hat=cov_hat, formula=formula))
 }
 
