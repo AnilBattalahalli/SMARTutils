@@ -84,13 +84,15 @@ get_varrho_star <- function(data, epsilon){
     for (ci in 1:N){
       data_sub <- data[data$i == ci, ]
       ni <- nrow(data_sub)
-      A1 <- data_sub$A1[1]
-      R <- data_sub$R[1]
-      A2 <- data_sub$A2[1]
-      eps_mul_sum <- perm_mul_sum(epsilon[[d]][[ci]])
-      if (IWi(A1, R, A2, a1, a2) != 0){
-        s <- s + (IWi(A1, R, A2, a1, a2) * eps_mul_sum)
-        den <- den + (IWi(A1, R, A2, a1, a2) * ni * (ni - 1))
+      if (ni > 1){
+        A1 <- data_sub$A1[1]
+        R <- data_sub$R[1]
+        A2 <- data_sub$A2[1]
+        eps_mul_sum <- perm_mul_sum(epsilon[[d]][[ci]])
+        if (IWi(A1, R, A2, a1, a2) != 0){
+          s <- s + (IWi(A1, R, A2, a1, a2) * eps_mul_sum)
+          den <- den + (IWi(A1, R, A2, a1, a2) * ni * (ni - 1))
+        }
       }
     }
     den <- den * var_star[[d]]
@@ -223,6 +225,7 @@ clustered.estimate <- function(formula, data, est_var = T){
   varrho_stars <- get_varrho_star(data, epsilon)
   var <- varrho_stars$var_star
   rho <- varrho_stars$rho_star
+
   if (est_var){
     cov_hat <- clustered.estimate_var_betas(data, var, rho, betas, formula)
     return(list(beta_hat=betas, var_hat=var, rho_hat=rho, cov_hat_beta_hat=cov_hat, formula=formula))
