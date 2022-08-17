@@ -1,10 +1,3 @@
-### Install the library
-
-``` r
-library(devtools)
-install_github("AnilBattalahalli/SMARTutils")
-```
-
 ### Import the library
 
 ``` r
@@ -14,69 +7,59 @@ library(SMARTutils)
 ### Generate data from conditional parameters
 
 ``` r
-recipe <- nocovariates.from_conditional()
-data <- nocovariates.treat(recipe)
+data <- cSMART.dgen()
 ```
 
+    ##  DTR      Treatment Mean      Treatment Variance      Treatment Correlation 
+    ## ______    ______________      __________________      _____________________ 
+    ##  1, 1         8.6           100.84          0.1769139 
+    ##  1,-1         4.4           113.44          0.2374824 
+    ## -1, 1         -0.8          105.76          0.1603631 
+    ## -1,-1         3.2           100.16          0.08146965 
+    ## ______    ______________      __________________      _____________________ 
+    ## 
+    ## True Beta:
+    ## 
+    ## Beta[0] - 3.85 
+    ## Beta[1] - 2.65 
+    ## Beta[2] - 0.05 
+    ## Beta[3] - 2.05
+
 ``` r
-data <- nocovariates.treat(recipe)
 head(data)
 ```
 
-    ##   i j A1 R A2           Y
-    ## 1 1 1  1 1  1   5.0282097
-    ## 2 1 2  1 1  1   0.2076947
-    ## 3 1 3  1 1  1   4.0099962
-    ## 4 1 4  1 1  1 -12.9397841
-    ## 5 1 5  1 1  1  13.3996666
-    ## 6 2 1  1 0  1  20.3180844
+    ##   i j A1 R A2         Y
+    ## 1 1 1 -1 0  1 -3.452152
+    ## 2 1 2 -1 0  1 -2.735390
+    ## 3 1 3 -1 0  1 -1.758195
+    ## 4 1 4 -1 0  1  8.243450
+    ## 5 1 5 -1 0  1  3.232144
+    ## 6 2 1 -1 0  1 13.987650
 
-### Get the treatment summary of the generated data
-
-``` r
-treatment_summary(recipe)
-```
-
-    ##         treat_mu treat_var  treat_cor betas
-    ## (1, 1)       8.6    100.84 0.17691392  3.85
-    ## (1, -1)      4.4    113.44 0.23748237  2.65
-    ## (-1, 1)     -0.8    105.76 0.16036309  0.05
-    ## (-1,-1)      3.2    100.16 0.08146965  2.05
-
-### Estimate parameters from data
+### Get the estimates for the regression parameters
 
 ``` r
-estimates <- clustered.estimate(Y~a1+a2+I(a1*a2), data)
+report <- cSMART.mm(Y~a1+a2+I(a1*a2), data, verbose=T)
 ```
 
-Get the estimated betas
-
-``` r
-estimates$beta_hat
-```
-
-    ##           [,1]
-    ## [1,] 4.2998086
-    ## [2,] 1.7644759
-    ## [3,] 0.2578912
-    ## [4,] 2.4001336
-
-Get variance-covariance matrix of betas
-
-``` r
-estimates$cov_hat_beta_hat
-```
-
-    ##             [,1]        [,2]        [,3]        [,4]
-    ## [1,]  0.16103459  0.02497196  0.02029938 -0.01140415
-    ## [2,]  0.02497196  0.16103459 -0.01140415  0.02029938
-    ## [3,]  0.02029938 -0.01140415  0.16103459  0.02497196
-    ## [4,] -0.01140415  0.02029938  0.02497196  0.16103459
-
-The formula that was called
-
-``` r
-estimates$formula
-```
-
-    ## Y ~ a1 + a2 + I(a1 * a2)
+    ## Parameter     Estimate    Std.Err     Z Score     Pr(>|z|) 
+    ## ___________   --------    -------     -------     ------- 
+    ## (Intercept)   4.47717     0.36671     12.20888    2.786906e-34 
+    ## a1            2.74937     0.36671     7.497308    6.514162e-14 
+    ## a2            -0.22003    0.36671     -0.5999946      0.5485099 
+    ## I(a1 * a2)    1.10251     0.36671     3.006454    0.00264314 
+    ## ___________   --------    -------     -------     ------- 
+    ## 
+    ## Marginal Mean Model:  Y ~ a1 + a2 + I(a1 * a2) 
+    ## 
+    ## Working covariance structure: 'EXCH'  (Homogeneous-Exchangeable covariance structure)
+    ## Variance      102.2465
+    ## Correlation   0.1591008
+    ## 
+    ## Variance-Covariance matrix of the estimates
+    ##              (Intercept)           a1           a2   I(a1 * a2)
+    ## (Intercept)  0.134479319  0.003630063 -0.013093342 -0.004863585
+    ## a1           0.003630063  0.134479319 -0.004863585 -0.013093342
+    ## a2          -0.013093342 -0.004863585  0.134479319  0.003630063
+    ## I(a1 * a2)  -0.004863585 -0.013093342  0.003630063  0.134479319
