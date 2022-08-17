@@ -1,6 +1,9 @@
 ### Import the library
 
 ``` r
+install.packages("devtools")
+library(devtools)
+install_github("AnilBattalahalli/SMARTutils")
 library(SMARTutils)
 ```
 
