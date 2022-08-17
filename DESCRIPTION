@@ -9,7 +9,6 @@ License: GPL-3
 Imports:
     mvtnorm,
     stats,
-    pbmcapply,
     dplyr
 Encoding: UTF-8
 LazyData: true
