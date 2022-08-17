@@ -3,6 +3,9 @@
 ``` r
 install.packages("devtools")
 library(devtools)
+```
+
+``` r
 install_github("AnilBattalahalli/SMARTutils")
 library(SMARTutils)
 ```
