@@ -570,12 +570,6 @@ cSMART.mm <-
     return(report)
   }
 
-
-
-
-
-
-
 nocovariates.true_effect_size <- function(recipe, d1, d2) {
   treat_mu <- recipe$treat_mu
   treat_var <- recipe$treat_var
@@ -656,8 +650,8 @@ nocovariates.treat <- function(recipe) {
   return(full_data_frame)
 }
 
-#' @title Function to get treatment recipe object from the conditional parameters
-#' @description Returns the treatment recipe object from the conditional parameters
+#' @title Function to generate object from the conditional parameters
+#' @description Returns the data.frame object from the conditional parameters
 #' (mean, variance, correlation), number of clusters, number of participants in each cluster,
 #' response probabilities of the different first level treatment options.
 #' conditional mean, variance, and correlation must be numerical lists of length 6 with each
