@@ -617,16 +617,16 @@ nocovariates.treat <- function(recipe) {
       R <-  rbinom(1, 1, p_1)
       if (R == 1) {
         treat_code <- "1,1,."
-        A2 <- 1
+        A2 <- NA
       } else if (R == 0) {
         A2 <-  (2 * rbinom(1, 1, p_A2)) - 1
         treat_code <- sprintf("1,0,%d", A2)
       }
     } else if (A1 == -1) {
-      R <-  rbinom(1, 1 , p_1)
+      R <-  rbinom(1, 1 , p_2)
       if (R == 1) {
         treat_code <- "-1,1,."
-        A2 <- 1
+        A2 <- NA
       }
       else if (R == 0) {
         A2 <-  (2 * rbinom(1, 1, p_A2)) - 1
