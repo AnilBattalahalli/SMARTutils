@@ -2,7 +2,7 @@
 % Please edit documentation in R/cSMART.R
 \name{cSMART.dgen}
 \alias{cSMART.dgen}
-\title{Function to get treatment recipe object from the conditional parameters}
+\title{Function to generate object from the conditional parameters}
 \usage{
 cSMART.dgen(
   cell_mu = c(10, 8, 2, 4, -2, 3),
@@ -39,7 +39,7 @@ where each element in the list corresponds to the number of participants in the 
 a data.frame object of the generated data
 }
 \description{
-Returns the treatment recipe object from the conditional parameters
+Returns the data.frame object from the conditional parameters
 (mean, variance, correlation), number of clusters, number of participants in each cluster,
 response probabilities of the different first level treatment options.
 conditional mean, variance, and correlation must be numerical lists of length 6 with each

@@ -319,6 +319,7 @@ cSMART.mm <-
            verbose = T,
            weights = NULL) {
     data <- clustered.prepare_data(data, i, A1, R, A2, Y)
+    data$A2[is.na(data$A2)] <- 0
 
     if (covstr == 'IND') {
       var <- list(
