@@ -24,7 +24,7 @@ padding_str <- function(x, n) {
   charlen <- nchar(x)
   trails <- n - charlen
 
-  return(paste(c(x, rep(" ", trails)), collapse = ''))
+  return(paste(c(x, rep(" ", trails)), collapse = ""))
 }
 
 pval <- function(x) {
@@ -57,11 +57,13 @@ get_residuals <- function(betas, data, formula) {
   dtrenc <-
     list(
       "1,1" = c(1, 1),
-      "1,-1" = c(1,-1),
+      "1,-1" = c(1, -1),
       "-1,1" = c(-1, 1),
-      "-1,-1" = c(-1,-1)
+      "-1,-1" = c(-1, -1)
     )
-  N <- data$i %>% unique %>% length
+  N <- data$i %>%
+    unique() %>%
+    length()
   epsilon <- list()
   for (d in dtrs) {
     a1 <- dtrenc[[d]][1]
@@ -84,13 +86,15 @@ get_varrho_star <- function(data, epsilon, weights) {
   dtrenc <-
     list(
       "1,1" = c(1, 1),
-      "1,-1" = c(1,-1),
+      "1,-1" = c(1, -1),
       "-1,1" = c(-1, 1),
-      "-1,-1" = c(-1,-1)
+      "-1,-1" = c(-1, -1)
     )
   var_star <- list()
   rho_star <- list()
-  N <- data$i %>% unique %>% length
+  N <- data$i %>%
+    unique() %>%
+    length()
 
   for (d in dtrs) {
     a1 <- dtrenc[[d]][1]
@@ -103,11 +107,11 @@ get_varrho_star <- function(data, epsilon, weights) {
       A1 <- data_sub$A1[1]
       R <- data_sub$R[1]
       A2 <- data_sub$A2[1]
-      eps_sq <- epsilon[[d]][[ci]] ^ 2
+      eps_sq <- epsilon[[d]][[ci]]^2
       if (is.null(weights) == F) {
-        W = weights[weights$i == ci,]$W[1] * Ii(A1, R, A2, a1, a2)
-      } else{
-        W = IWi(A1, R, A2, a1, a2)
+        W <- weights[weights$i == ci, ]$W[1] * Ii(A1, R, A2, a1, a2)
+      } else {
+        W <- IWi(A1, R, A2, a1, a2)
       }
       if (W != 0) {
         s <- s + (W * sum(eps_sq))
@@ -131,9 +135,9 @@ get_varrho_star <- function(data, epsilon, weights) {
         A2 <- data_sub$A2[1]
         eps_mul_sum <- perm_mul_sum(epsilon[[d]][[ci]])
         if (is.null(weights) == F) {
-          W = weights[weights$i == ci,]$W[1] * Ii(A1, R, A2, a1, a2)
-        } else{
-          W = IWi(A1, R, A2, a1, a2)
+          W <- weights[weights$i == ci, ]$W[1] * Ii(A1, R, A2, a1, a2)
+        } else {
+          W <- IWi(A1, R, A2, a1, a2)
         }
         if (W != 0) {
           s <- s + (W * eps_mul_sum)
@@ -149,17 +153,19 @@ get_varrho_star <- function(data, epsilon, weights) {
 }
 
 get_beta <- function(var, rho, data, formula, weights) {
-  params <- (formula %>% terms %>% labels %>% length) + 1
+  params <- (formula %>% terms() %>% labels() %>% length()) + 1
   dtrs <- c("1,1", "1,-1", "-1,1", "-1,-1")
   dtrenc <-
     list(
       "1,1" = c(1, 1),
-      "1,-1" = c(1,-1),
+      "1,-1" = c(1, -1),
       "-1,1" = c(-1, 1),
-      "-1,-1" = c(-1,-1)
+      "-1,-1" = c(-1, -1)
     )
   f <- matrix(0, params, params)
-  N <- data$i %>% unique %>% length
+  N <- data$i %>%
+    unique() %>%
+    length()
   for (ci in unique(data$i)) {
     data_sub <- data[data$i == ci, ]
     A1 <- data_sub$A1[1]
@@ -170,13 +176,13 @@ get_beta <- function(var, rho, data, formula, weights) {
       a1 <- dtrenc[[d]][1]
       a2 <- dtrenc[[d]][2]
       if (is.null(weights) == F) {
-        W = weights[weights$i == ci,]$W[1] * Ii(A1, R, A2, a1, a2)
-      } else{
-        W = IWi(A1, R, A2, a1, a2)
+        W <- weights[weights$i == ci, ]$W[1] * Ii(A1, R, A2, a1, a2)
+      } else {
+        W <- IWi(A1, R, A2, a1, a2)
       }
       if (W != 0) {
-        V = var[[d]] * (diag(ni) + (rho[[d]] * (matrix(1, ni, ni) - diag(ni))))
-        f = f + (W * t(D(data_sub, a1, a2, formula)) %*% solve(V) %*% D(data_sub, a1, a2, formula))
+        V <- var[[d]] * (diag(ni) + (rho[[d]] * (matrix(1, ni, ni) - diag(ni))))
+        f <- f + (W * t(D(data_sub, a1, a2, formula)) %*% solve(V) %*% D(data_sub, a1, a2, formula))
       }
     }
   }
@@ -193,12 +199,12 @@ get_beta <- function(var, rho, data, formula, weights) {
       a1 <- dtrenc[[d]][1]
       a2 <- dtrenc[[d]][2]
       if (is.null(weights) == F) {
-        W = weights[weights$i == ci,]$W[1] * Ii(A1, R, A2, a1, a2)
-      } else{
-        W = IWi(A1, R, A2, a1, a2)
+        W <- weights[weights$i == ci, ]$W[1] * Ii(A1, R, A2, a1, a2)
+      } else {
+        W <- IWi(A1, R, A2, a1, a2)
       }
       if (W != 0) {
-        V = var[[d]] * (diag(ni) + (rho[[d]] * (matrix(1, ni, ni) - diag(ni))))
+        V <- var[[d]] * (diag(ni) + (rho[[d]] * (matrix(1, ni, ni) - diag(ni))))
         s <-
           s + (IWi(A1, R, A2, a1, a2) * t(D(data_sub, a1, a2, formula)) %*% solve(V) %*% Y)
       }
@@ -210,17 +216,19 @@ get_beta <- function(var, rho, data, formula, weights) {
 
 clustered.estimate_var_betas <-
   function(data, var, rho, betas, formula, weights) {
-    params <- (formula %>% terms %>% labels %>% length) + 1
+    params <- (formula %>% terms() %>% labels() %>% length()) + 1
     dtrs <- c("1,1", "1,-1", "-1,1", "-1,-1")
     dtrenc <-
       list(
         "1,1" = c(1, 1),
-        "1,-1" = c(1,-1),
+        "1,-1" = c(1, -1),
         "-1,1" = c(-1, 1),
-        "-1,-1" = c(-1,-1)
+        "-1,-1" = c(-1, -1)
       )
     J_hat <- matrix(0, params, params)
-    N <- data$i %>% unique %>% length
+    N <- data$i %>%
+      unique() %>%
+      length()
     for (d in dtrs) {
       a1 <- dtrenc[[d]][1]
       a2 <- dtrenc[[d]][2]
@@ -232,26 +240,26 @@ clustered.estimate_var_betas <-
         R <- data_sub$R[1]
         A2 <- data_sub$A2[1]
         if (is.null(weights) == F) {
-          W = weights[weights$i == ci,]$W[1] * Ii(A1, R, A2, a1, a2)
-        } else{
-          W = IWi(A1, R, A2, a1, a2)
+          W <- weights[weights$i == ci, ]$W[1] * Ii(A1, R, A2, a1, a2)
+        } else {
+          W <- IWi(A1, R, A2, a1, a2)
         }
         if (W != 0) {
-          V = var[[d]] * (diag(ni) + (rho[[d]] * (matrix(1, ni, ni) - diag(ni))))
+          V <- var[[d]] * (diag(ni) + (rho[[d]] * (matrix(1, ni, ni) - diag(ni))))
           temp <-
             temp + (W * t(D(data_sub, a1, a2, formula)) %*% solve(V) %*% D(data_sub, a1, a2, formula))
         }
       }
       J_hat <- J_hat + temp
     }
-    J_hat <-  J_hat / N
+    J_hat <- J_hat / N
 
     A_hat <- matrix(0, params, params)
-    for (d in dtrs) {
-      temp <- matrix(0, params, params)
-      a1 <- dtrenc[[d]][1]
-      a2 <- dtrenc[[d]][2]
-      for (ci in unique(data$i)) {
+    for (ci in unique(data$i)) {
+      for (d in dtrs) {
+        a1 <- dtrenc[[d]][1]
+        a2 <- dtrenc[[d]][2]
+
         data_sub <- data[data$i == ci, ]
         A1 <- data_sub$A1[1]
         R <- data_sub$R[1]
@@ -259,18 +267,17 @@ clustered.estimate_var_betas <-
         ni <- nrow(data_sub)
         Y <- matrix(data_sub$Y)
         diff <- Y - mmm(D(data_sub, a1, a2, formula), betas)
-        V = var[[d]] * (diag(ni) + (rho[[d]] * (matrix(1, ni, ni) - diag(ni))))
+        V <- var[[d]] * (diag(ni) + (rho[[d]] * (matrix(1, ni, ni) - diag(ni))))
         if (is.null(weights) == F) {
-          W = weights[weights$i == ci,]$W[1] * Ii(A1, R, A2, a1, a2)
-        } else{
-          W = IWi(A1, R, A2, a1, a2)
+          W <- weights[weights$i == ci, ]$W[1] * Ii(A1, R, A2, a1, a2)
+        } else {
+          W <- IWi(A1, R, A2, a1, a2)
         }
         if (W != 0) {
           Ui <- W * t(D(data_sub, a1, a2, formula)) %*% solve(V) %*% diff
-          temp <- temp + (Ui %*% t(Ui))
+          A_hat <- A_hat + (Ui %*% t(Ui))
         }
       }
-      A_hat <- A_hat + temp
     }
     A_hat <- A_hat / N
 
@@ -281,16 +288,16 @@ clustered.estimate_var_betas <-
 
 clustered.prepare_data <-
   function(data,
-           i = 'i',
-           A1 = 'A1',
-           R = 'R',
-           A2 = 'A2',
-           Y = 'Y') {
-    names(data)[names(data) == i] <- 'i'
-    names(data)[names(data) == A1] <- 'A1'
-    names(data)[names(data) == R] <- 'R'
-    names(data)[names(data) == A2] <- 'A2'
-    names(data)[names(data) == Y] <- 'Y'
+           i = "i",
+           A1 = "A1",
+           R = "R",
+           A2 = "A2",
+           Y = "Y") {
+    names(data)[names(data) == i] <- "i"
+    names(data)[names(data) == A1] <- "A1"
+    names(data)[names(data) == R] <- "R"
+    names(data)[names(data) == A2] <- "A2"
+    names(data)[names(data) == Y] <- "Y"
     return(data)
   }
 
@@ -310,18 +317,18 @@ clustered.prepare_data <-
 cSMART.mm <-
   function(formula,
            data,
-           i = 'i',
-           A1 = 'A1',
-           R = 'R',
-           A2 = 'A2',
-           Y = 'Y',
-           covstr = 'EXCH',
+           i = "i",
+           A1 = "A1",
+           R = "R",
+           A2 = "A2",
+           Y = "Y",
+           covstr = "EXCH",
            verbose = T,
            weights = NULL) {
     data <- clustered.prepare_data(data, i, A1, R, A2, Y)
     data$A2[is.na(data$A2)] <- 0
 
-    if (covstr == 'IND') {
+    if (covstr == "IND") {
       var <- list(
         "1,1" = 1,
         "1,-1" = 1,
@@ -344,7 +351,7 @@ cSMART.mm <-
         clustered.estimate_var_betas(data, var, rho, betas, formula, weights)
     }
 
-    if (covstr == 'EXCH') {
+    if (covstr == "EXCH") {
       var <- list(
         "1,1" = 1,
         "1,-1" = 1,
@@ -411,7 +418,7 @@ cSMART.mm <-
         clustered.estimate_var_betas(data, var, rho, betas, formula, weights)
     }
 
-    if (covstr == 'EXCH|AI') {
+    if (covstr == "EXCH|AI") {
       var <- list(
         "1,1" = 1,
         "1,-1" = 1,
@@ -446,7 +453,6 @@ cSMART.mm <-
 
       cov_hat <-
         clustered.estimate_var_betas(data, var, rho, betas, formula, weights)
-
     }
 
     report <- list(
@@ -456,14 +462,16 @@ cSMART.mm <-
       cov_hat_beta_hat = cov_hat,
       formula = formula
     )
-    formula <- report$formula %>% terms
+    formula <- report$formula %>% terms()
     terms <- c("(Intercept)", attr(terms(formula), "term.labels"))
     rownames(report$cov_hat_beta_hat) <- terms
     colnames(report$cov_hat_beta_hat) <- terms
 
     if (verbose) {
-      n <- lapply(terms, nchar) %>% unlist %>% max
-      terms_padded <- lapply(terms, padding_str, n = n) %>% unlist
+      n <- lapply(terms, nchar) %>%
+        unlist() %>%
+        max()
+      terms_padded <- lapply(terms, padding_str, n = n) %>% unlist()
 
       cat(
         padding_str("Parameter", n),
@@ -478,7 +486,7 @@ cSMART.mm <-
         "\n"
       )
       cat(
-        paste(rep("_", n), collapse = ''),
+        paste(rep("_", n), collapse = ""),
         "\t",
         "--------",
         "\t",
@@ -504,7 +512,7 @@ cSMART.mm <-
         )
       }
       cat(
-        paste(rep("_", n), collapse = ''),
+        paste(rep("_", n), collapse = ""),
         "\t",
         "--------",
         "\t",
@@ -520,7 +528,7 @@ cSMART.mm <-
 
       cat(paste("Marginal Mean Model: ", format(formula)), "\n\n")
 
-      if (covstr == 'IND') {
+      if (covstr == "IND") {
         cat(
           "Working covariance structure: 'IND' ",
           "(Independent-Homogeneous covariance structure)",
@@ -530,7 +538,7 @@ cSMART.mm <-
         cat("\n")
       }
 
-      if (covstr == 'EXCH') {
+      if (covstr == "EXCH") {
         cat(
           "Working covariance structure: 'EXCH' ",
           "(Homogeneous-Exchangeable covariance structure)"
@@ -540,10 +548,9 @@ cSMART.mm <-
         cat("\n")
         cat("Correlation", "\t", mean(unlist(report$rho_hat)))
         cat("\n")
-
       }
 
-      if (covstr == 'EXCH|AI') {
+      if (covstr == "EXCH|AI") {
         cat(
           "Working covariance structure: 'EXCH|AI' ",
           "(Exchangeable by adaptive intervention covariance structure)",
@@ -612,25 +619,24 @@ nocovariates.treat <- function(recipe) {
 
   for (clusID in 1:N) {
     m <- m_vec[clusID]
-    A1 <-  (2 * rbinom(1, 1, p_A1)) - 1
+    A1 <- (2 * rbinom(1, 1, p_A1)) - 1
 
     if (A1 == 1) {
-      R <-  rbinom(1, 1, p_1)
+      R <- rbinom(1, 1, p_1)
       if (R == 1) {
         treat_code <- "1,1,."
         A2 <- NA
       } else if (R == 0) {
-        A2 <-  (2 * rbinom(1, 1, p_A2)) - 1
+        A2 <- (2 * rbinom(1, 1, p_A2)) - 1
         treat_code <- sprintf("1,0,%d", A2)
       }
     } else if (A1 == -1) {
-      R <-  rbinom(1, 1 , p_2)
+      R <- rbinom(1, 1, p_2)
       if (R == 1) {
         treat_code <- "-1,1,."
         A2 <- NA
-      }
-      else if (R == 0) {
-        A2 <-  (2 * rbinom(1, 1, p_A2)) - 1
+      } else if (R == 0) {
+        A2 <- (2 * rbinom(1, 1, p_A2)) - 1
         treat_code <- sprintf("-1,0,%d", A2)
       }
     }
@@ -638,16 +644,16 @@ nocovariates.treat <- function(recipe) {
     cell_index <- as.numeric(encoder[treat_code])
     V <-
       cell_var[cell_index] * (diag(m) + (cell_cor[cell_index] * (matrix(1, m, m) -
-                                                                   diag(m))))
+        diag(m))))
     Y <-
-      t(cell_mu[cell_index] + mvtnorm::rmvnorm(1, rep(0, m), V, method = 'chol'))
+      t(cell_mu[cell_index] + mvtnorm::rmvnorm(1, rep(0, m), V, method = "chol"))
 
     tempmat <-
       cbind(rep(clusID, m), seq(1, m), rep(A1, m), rep(R, m), rep(A2, m), Y)
     data <- rbind(data, tempmat)
   }
-  full_data_frame = as.data.frame(data)
-  names(full_data_frame) = c("i", "j", "A1", "R", "A2", "Y")
+  full_data_frame <- as.data.frame(data)
+  names(full_data_frame) <- c("i", "j", "A1", "R", "A2", "Y")
   return(full_data_frame)
 }
 
@@ -673,7 +679,7 @@ nocovariates.treat <- function(recipe) {
 #' @export cSMART.dgen
 
 cSMART.dgen <-
-  function(cell_mu = c(10, 8, 2, 4,-2, 3),
+  function(cell_mu = c(10, 8, 2, 4, -2, 3),
            cell_var = c(100, 100, 100, 100, 100, 100),
            cell_cor = c(0.1, 0.2, 0.15, 0.12, 0.11, 0.07),
            N = 200,
@@ -688,45 +694,50 @@ cSMART.dgen <-
     p_A1 <- 0.5
     p_A2 <- 0.5
 
-    q_1 <-  1 - p_1
-    q_2 <-  1 - p_2
+    q_1 <- 1 - p_1
+    q_2 <- 1 - p_2
 
-    cell_cov <-  cell_var * cell_cor
+    cell_cov <- cell_var * cell_cor
 
     treat_mu <-
-      c((cell_mu[1] * p_1) + (cell_mu[2] * q_1),
+      c(
+        (cell_mu[1] * p_1) + (cell_mu[2] * q_1),
         (cell_mu[1] * p_1) + (cell_mu[3] * q_1),
         (cell_mu[4] * p_2) + (cell_mu[5] * q_2),
         (cell_mu[4] * p_2) + (cell_mu[6] * q_2)
       )
 
     treat_var <-
-      c((cell_var[1] * p_1 + cell_var[2] * q_1),
+      c(
+        (cell_var[1] * p_1 + cell_var[2] * q_1),
         (cell_var[1] * p_1 + cell_var[3] * q_1),
         (cell_var[4] * p_2 + cell_var[5] * q_2),
         (cell_var[4] * p_2 + cell_var[6] * q_2)
       )
 
     mean_diff_term <-
-      c(((cell_mu[1] - cell_mu[2]) ^ 2) * p_1 * q_1, ((cell_mu[1] - cell_mu[3]) ^
-                                                        2) * p_1 * q_1,
-        ((cell_mu[4] - cell_mu[5]) ^ 2) * p_2 * q_2, ((cell_mu[4] -
-                                                         cell_mu[6]) ^ 2) * p_2 * q_2)
+      c(
+        ((cell_mu[1] - cell_mu[2])^2) * p_1 * q_1, ((cell_mu[1] - cell_mu[3])^
+          2) * p_1 * q_1,
+        ((cell_mu[4] - cell_mu[5])^2) * p_2 * q_2, ((cell_mu[4] -
+          cell_mu[6])^2) * p_2 * q_2
+      )
 
-    treat_var <-  treat_var + mean_diff_term
+    treat_var <- treat_var + mean_diff_term
 
     treat_cov <-
-      c((cell_cov[1] * p_1) + (cell_cov[2] * q_1),
+      c(
+        (cell_cov[1] * p_1) + (cell_cov[2] * q_1),
         (cell_cov[1] * p_1) + (cell_cov[3] * q_1),
         (cell_cov[4] * p_2) + (cell_cov[5] * q_2),
         (cell_cov[4] * p_2 + cell_cov[6] * q_2)
       )
 
-    treat_cov <-  treat_cov + mean_diff_term
-    treat_cor <-  treat_cov / treat_var
+    treat_cov <- treat_cov + mean_diff_term
+    treat_cor <- treat_cov / treat_var
     A <-
-      matrix(c(1, 1, 1, 1, 1, 1,-1,-1, 1,-1, 1,-1, 1,-1,-1, 1), 4, 4)
-    B <-  matrix(treat_mu, 4, 1)
+      matrix(c(1, 1, 1, 1, 1, 1, -1, -1, 1, -1, 1, -1, 1, -1, -1, 1), 4, 4)
+    B <- matrix(treat_mu, 4, 1)
     betas <- solve(A, B)
 
     treat_summary <-
@@ -760,9 +771,7 @@ cSMART.dgen <-
 
     if (treatment.summary == T) {
       return(list(data = data, summary = treat_summary))
-    }
-
-    else{
+    } else {
       cat(
         " DTR",
         "\t",
@@ -784,16 +793,18 @@ cSMART.dgen <-
         "\n"
       )
       for (i in 1:4) {
-        cat(dtrs[i],
-            "\t\t",
-            treat_mu[i],
-            "\t\t",
-            " ",
-            treat_var[i],
-            "\t\t",
-            " ",
-            treat_cor[i],
-            "\n")
+        cat(
+          dtrs[i],
+          "\t\t",
+          treat_mu[i],
+          "\t\t",
+          " ",
+          treat_var[i],
+          "\t\t",
+          " ",
+          treat_cor[i],
+          "\n"
+        )
       }
       cat(
         "______",
@@ -807,11 +818,10 @@ cSMART.dgen <-
       )
 
       cat("\nTrue Beta:\n\n")
-      for(i in 1:4){
-        cat(sprintf("Beta[%d]", i-1), '-', betas[i], "\n")
+      for (i in 1:4) {
+        cat(sprintf("Beta[%d]", i - 1), "-", betas[i], "\n")
       }
 
       return(data)
-
     }
   }
