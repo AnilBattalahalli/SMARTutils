@@ -256,10 +256,10 @@ clustered.estimate_var_betas <-
 
     A_hat <- matrix(0, params, params)
     for (ci in unique(data$i)) {
+      Ui_temp <- matrix(0, 4, 1)
       for (d in dtrs) {
         a1 <- dtrenc[[d]][1]
         a2 <- dtrenc[[d]][2]
-
         data_sub <- data[data$i == ci, ]
         A1 <- data_sub$A1[1]
         R <- data_sub$R[1]
@@ -275,12 +275,12 @@ clustered.estimate_var_betas <-
         }
         if (W != 0) {
           Ui <- W * t(D(data_sub, a1, a2, formula)) %*% solve(V) %*% diff
-          A_hat <- A_hat + (Ui %*% t(Ui))
+          Ui_temp <- Ui_temp+Ui
         }
       }
+      A_hat <- A_hat + (Ui_temp %*% t(Ui_temp))
     }
     A_hat <- A_hat / N
-
     var_hat_beta_hat <-
       (1 / N) * (solve(J_hat) %*% A_hat %*% solve(J_hat))
     return(var_hat_beta_hat)
